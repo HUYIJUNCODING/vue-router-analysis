@@ -34,13 +34,23 @@ export class History {
   constructor (router: Router, base: ?string) {
     //实际上就是 this.history = router (new VueRouter 实例的 history 对象上挂载当前 new VueRouter 对象 )
     this.router = router
-    //规范化base返回 /base
+    //规范化base (返回 /base)
     this.base = normalizeBase(base)
+
     // start with a route object that stands for "nowhere"
-    //初始化一个原始当前路由对象
+    //START: 初始化一个原始当前路由对象
+    /**
+     * fullPath: "/"
+     * hash: ""
+     * matched: []
+     * meta: {}
+     * name: null
+     * params: {}
+     * path: "/"
+     * query: {}
+     */
     this.current = START
-    console.log(this.current,'current')
-    return;
+   
     this.pending = null
     this.ready = false
     this.readyCbs = []
@@ -68,7 +78,7 @@ export class History {
   }
 
   transitionTo (
-    location: RawLocation,
+    location: RawLocation, //要去的路由地址
     onComplete?: Function,
     onAbort?: Function
   ) {

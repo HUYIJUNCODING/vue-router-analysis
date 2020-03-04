@@ -19,6 +19,10 @@ export class HTML5History extends History {
     }
 
     const initLocation = getLocation(this.base)
+    // 当活动历史记录条目更改时，将触发popstate事件。(浏览器页面记录)
+    // 调用history.pushState()或history.replaceState()不会触发popstate事件。
+    // 只有在做出浏览器动作时，才会触发该事件，如用户点击浏览器的回退按钮
+    // （或者在Javascript代码中调用history.back()或者history.forward()、history.go()方法）
     window.addEventListener('popstate', e => {
       const current = this.current
 

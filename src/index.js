@@ -33,13 +33,14 @@ export default class VueRouter {
   afterHooks: Array<?AfterNavigationHook>;
 
   constructor (options: RouterOptions = {}) {
-    this.app = null //vue根组件实例
-    this.apps = [] // push app
-    this.options = options
+    this.app = null //之后用来表示vue根节点
+    this.apps = [] // 存放app实例（vue根节点）
+    this.options = options //new VueRoter()时候传入的对象options
     this.beforeHooks = []
     this.resolveHooks = []
     this.afterHooks = []
-    this.matcher = createMatcher(options.routes || [], this)
+    //返回{ addRoutes,match} 
+    this.matcher = createMatcher(options.routes || [], this) 
 
     //模式
     let mode = options.mode || 'hash'
@@ -85,36 +86,46 @@ export default class VueRouter {
     return this.history && this.history.current
   }
 
+  /**
+   * 
+   * @param {* vue根节点} app 
+   */
   init (app: any /* Vue component instance */) {
+    //断言插件是否已被安装，如果否，则报错提示。
     process.env.NODE_ENV !== 'production' && assert(
       install.installed,
       `not installed. Make sure to call \`Vue.use(VueRouter)\` ` +
       `before creating root instance.`
     )
-
+    //apps是个数组，专门用来存放app实例（vue根节点）
     this.apps.push(app)
 
-    // set up app destroyed handler
+    // set up app destroyed handler 给app（vue根节点）设置 destroyed监听事件，如果实例销毁则会触发一次回调函数。
     // https://github.com/vuejs/vue-router/issues/2639
     app.$once('hook:destroyed', () => {
       // clean out app from this.apps array once destroyed
+      //将app从apps中移除
       const index = this.apps.indexOf(app)
       if (index > -1) this.apps.splice(index, 1)
       // ensure we still have a main app or null if no apps
       // we do not release the router so it can be reused
+      //确保我们仍然有一个主 app,如果apps不存在则 app为null，
+      //没有释放router,因此router可以被再次重复利用。
       if (this.app === app) this.app = this.apps[0] || null
     })
 
     // main app previously initialized
     // return as we don't need to set up new history listener
+    //如果app之前已经初始化过了，那就不需要再重新设置一个 新的 history监听
     if (this.app) {
       return
     }
-
+    //将 app 实例（Vue根节点）挂载到app内置属性上
     this.app = app
 
+    //history实例
     const history = this.history
-
+    //如果当前 history实例时 history类型，则执行 transitionTo 方法
     if (history instanceof HTML5History) {
       history.transitionTo(history.getCurrentLocation())
     } else if (history instanceof HashHistory) {
