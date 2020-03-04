@@ -41,16 +41,21 @@ export default class VueRouter {
     this.afterHooks = []
     this.matcher = createMatcher(options.routes || [], this)
 
+    //模式
     let mode = options.mode || 'hash'
+    //当前浏览器不支持history模式,强制转为hash模式
     this.fallback = mode === 'history' && !supportsPushState && options.fallback !== false
     if (this.fallback) {
       mode = 'hash'
     }
+    //不是浏览器环境(node.js下),采用抽象模式
     if (!inBrowser) {
       mode = 'abstract'
     }
+    //保存当前模式
     this.mode = mode
 
+    //初始化对应模式下的history实例
     switch (mode) {
       case 'history':
         this.history = new HTML5History(this, options.base)

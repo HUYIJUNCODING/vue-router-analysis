@@ -7,7 +7,7 @@ const trailingSlashRE = /\/?$/
 
 export function createRoute (
   record: ?RouteRecord,
-  location: Location,
+  location: Location, //要去的路由地址
   redirectedFrom?: ?Location,
   router?: VueRouter
 ): Route {
