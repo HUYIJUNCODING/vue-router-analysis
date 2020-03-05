@@ -13,15 +13,17 @@ export function normalizeLocation (
   append: ?boolean,
   router: ?VueRouter
 ): Location {
-  let next: Location = typeof raw === 'string' ? { path: raw } : raw
+  //判断传入的目标路由格式(字符串/对象),这里的raw就是push或者replace方法的第一个参数,
+  //这个就是path也只能是path.当字符串的形式时候不能是name,name必须使用对象属性声明使用(要去哪)
+  let next: Location = typeof raw === 'string' ? { path: raw } : raw 
   // named target
-  if (next._normalized) {
+  if (next._normalized) { //Todo
     return next
   } else if (next.name) {
-    next = extend({}, raw)
-    const params = next.params
+    next = extend({}, raw) //将raw对象属性复制进一个新对象(raw 对象副本)
+    const params = next.params 
     if (params && typeof params === 'object') {
-      next.params = extend({}, params)
+      next.params = extend({}, params) //params 对象副本
     }
     return next
   }

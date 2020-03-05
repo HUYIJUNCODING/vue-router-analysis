@@ -69,7 +69,9 @@ export class HTML5History extends History {
       push ? pushState(current) : replaceState(current)
     }
   }
-
+/**
+ * 
+ */
   getCurrentLocation (): string {
     return getLocation(this.base)
   }

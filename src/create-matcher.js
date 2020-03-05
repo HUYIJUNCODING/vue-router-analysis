@@ -24,8 +24,8 @@ export function createMatcher (
   }
 
   function match (
-    raw: RawLocation,
-    currentRoute?: Route,
+    raw: RawLocation,//要去的路由信息
+    currentRoute?: Route,//当前路由信息
     redirectedFrom?: Location
   ): Route {
     const location = normalizeLocation(raw, currentRoute, false, router)

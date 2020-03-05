@@ -18,7 +18,7 @@ const router = new VueRouter({
   base: __dirname,
   routes: [
     { path: '/', component: Home },
-    { path: '/foo', component: Foo },
+    { path: '/foo', name: 'foo1', component: Foo },
     { path: '/bar', component: Bar },
     { path: '/é', component: Unicode }
   ]
@@ -62,7 +62,7 @@ new Vue({
     navigateAndIncrement () {
       const increment = () => this.n++
       if (this.$route.path === '/') {
-        this.$router.push('/foo', increment)
+        this.$router.push({name: 'foo1'}, increment)
       } else {
         this.$router.push('/', increment)
       }

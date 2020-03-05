@@ -39,7 +39,7 @@ export default class VueRouter {
     this.beforeHooks = []
     this.resolveHooks = []
     this.afterHooks = []
-    //返回{ addRoutes,match} 
+    //路由匹配器,createMatcher会返回{ addRoutes,match} 
     this.matcher = createMatcher(options.routes || [], this) 
 
     //模式
@@ -74,9 +74,15 @@ export default class VueRouter {
     }
   }
 
+  /**
+   * 
+   * @param {*} raw 类型 location (location是对 url 的结构化描述)
+   * @param {*} current  类型 route (route表示路由中的一条线路)
+   * @param {*} redirectedFrom 
+   */
   match (
-    raw: RawLocation,
-    current?: Route,
+    raw: RawLocation,//push方法的第一个参数(要去的路由)
+    current?: Route, //当前路由信息(对象)
     redirectedFrom?: Location
   ): Route {
     return this.matcher.match(raw, current, redirectedFrom)
@@ -110,13 +116,13 @@ export default class VueRouter {
       // ensure we still have a main app or null if no apps
       // we do not release the router so it can be reused
       //确保我们仍然有一个主 app,如果apps不存在则 app为null，
-      //没有释放router,因此router可以被再次重复利用。
+      //由于没有释放router,因此router可以被再次重复利用。
       if (this.app === app) this.app = this.apps[0] || null
     })
 
     // main app previously initialized
     // return as we don't need to set up new history listener
-    //如果app之前已经初始化过了，那就不需要再重新设置一个 新的 history监听
+    //如果app之前已经初始化过了，那就不需要再重新设置一个新的 history监听
     if (this.app) {
       return
     }
@@ -125,7 +131,7 @@ export default class VueRouter {
 
     //history实例
     const history = this.history
-    //如果当前 history实例时 history类型，则执行 transitionTo 方法
+    //如果当前 history实例是 HTML5History 类型，则直接执行 transitionTo 方法
     if (history instanceof HTML5History) {
       history.transitionTo(history.getCurrentLocation())
     } else if (history instanceof HashHistory) {
