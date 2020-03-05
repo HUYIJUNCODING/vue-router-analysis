@@ -14,7 +14,7 @@ const Unicode = { template: '<div>unicode</div>' }
 
 // 3. Create the router
 const router = new VueRouter({
-  mode: 'history',
+  mode: 'hash',
   base: __dirname,
   routes: [
     { path: '/', component: Home },
@@ -36,7 +36,7 @@ new Vue({
       <ul>
         <li><router-link to="/">/</router-link></li>
         <li><router-link to="/foo">/foo</router-link></li>
-        <li><router-link to="/bar">/bar</router-link></li>
+        <li><router-link :to='{params: {a:11}}'>/bar</router-link></li>
         <router-link tag="li" to="/bar" :event="['mousedown', 'touchstart']">
           <a>/bar</a>
         </router-link>

@@ -82,7 +82,7 @@ export class History {
     onComplete?: Function,
     onAbort?: Function
   ) {
-    const route = this.router.match(location, this.current)
+    const route = this.router.match(location, this.current) 
     this.confirmTransition(
       route,
       () => {
