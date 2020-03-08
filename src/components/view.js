@@ -53,10 +53,10 @@ export default {
         return h()
       }
     }
-
+    console.log(depth,route,'xxxxxxxxxxxxxxxxxx')
     const matched = route.matched[depth]
     const component = matched && matched.components[name]
-
+    console.log(component,'co')
     // render empty node if no matched route or no config component
     if (!matched || !component) {
       cache[name] = null

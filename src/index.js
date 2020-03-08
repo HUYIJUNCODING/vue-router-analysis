@@ -15,7 +15,11 @@ import { AbstractHistory } from './history/abstract'
 
 import type { Matcher } from './create-matcher'
 
+/**
+ * VueRouter
+ */
 export default class VueRouter {
+  //声明一个 install 静态方法，安装插件的 install方法会赋给该静态方法，下面会看到。
   static install: () => void;
   static version: string;
 
@@ -33,18 +37,18 @@ export default class VueRouter {
   afterHooks: Array<?AfterNavigationHook>;
 
   constructor (options: RouterOptions = {}) {
-    this.app = null //之后用来表示vue根节点
-    this.apps = [] // 存放app实例（vue根节点）
-    this.options = options //new VueRoter()时候传入的对象options
-    this.beforeHooks = []
-    this.resolveHooks = []
-    this.afterHooks = []
-    //路由匹配器,createMatcher会返回{ addRoutes,match} 
+    this.app = null //表示vue根实例
+    this.apps = [] // 保存拥有$options.router 属性的 Vue 实例,一般也就是vue根实例 [app]
+    this.options = options //new VueRoter()时候传入的options路由配置
+    this.beforeHooks = [] //保存beforeEach路由钩子
+    this.resolveHooks = [] //保存beforeResolve路由钩子
+    this.afterHooks = [] //保存afterEach路由钩子
+    //路由匹配器,createMatcher会返回{ addRoutes,match } 
     this.matcher = createMatcher(options.routes || [], this) 
 
-    //模式
+    //路由模式
     let mode = options.mode || 'hash'
-    //当前浏览器不支持history模式,强制转为hash模式
+    //当前浏览器不支持history模式,根据选项中fallback值(true/false)决定是否降级转为hash模式
     this.fallback = mode === 'history' && !supportsPushState && options.fallback !== false
     if (this.fallback) {
       mode = 'hash'
@@ -53,7 +57,7 @@ export default class VueRouter {
     if (!inBrowser) {
       mode = 'abstract'
     }
-    //保存当前模式
+    
     this.mode = mode
 
     //初始化对应模式下的history实例
@@ -75,9 +79,10 @@ export default class VueRouter {
   }
 
   /**
-   * 
-   * @param {*} raw 类型 location (location是对 url 的结构化描述)
-   * @param {*} current  类型 route (route表示路由中的一条线路)
+   * 执行路由匹配,会根据 raw:导航去哪的路由信息(就是我们使用push/replace方法的第一个参数) 和current:当前路由信息,计算匹配出一个新的route
+   * 这个新的route就是最终的route(this.$route访问到的)
+   * @param {*} raw
+   * @param {*} current 
    * @param {*} redirectedFrom 
    */
   match (
@@ -85,6 +90,7 @@ export default class VueRouter {
     current?: Route, //当前路由信息(对象)
     redirectedFrom?: Location
   ): Route {
+    //返回
     return this.matcher.match(raw, current, redirectedFrom)
   }
 
@@ -93,8 +99,8 @@ export default class VueRouter {
   }
 
   /**
-   * 
-   * @param {* vue根节点} app 
+   * 初始化router
+   * @param {*} app //app为Vue根实例
    */
   init (app: any /* Vue component instance */) {
     //断言插件是否已被安装，如果否，则报错提示。
@@ -103,10 +109,10 @@ export default class VueRouter {
       `not installed. Make sure to call \`Vue.use(VueRouter)\` ` +
       `before creating root instance.`
     )
-    //apps是个数组，专门用来存放app实例（vue根节点）
+    //apps是个数组，专门用来存放app实例（vue根实例）
     this.apps.push(app)
 
-    // set up app destroyed handler 给app（vue根节点）设置 destroyed监听事件，如果实例销毁则会触发一次回调函数。
+    // set up app destroyed handler 给app（vue根实例）设置 destroyed监听事件，如果实例销毁则会触发一次回调函数。
     // https://github.com/vuejs/vue-router/issues/2639
     app.$once('hook:destroyed', () => {
       // clean out app from this.apps array once destroyed
@@ -126,14 +132,15 @@ export default class VueRouter {
     if (this.app) {
       return
     }
-    //将 app 实例（Vue根节点）挂载到app内置属性上
+    //将Vue根实例挂载到router实例的app内置属性上
     this.app = app
 
     //history实例
     const history = this.history
-    //如果当前 history实例是 HTML5History 类型，则直接执行 transitionTo 方法
+    //如果当前 history实例是 HTML5History 类型，则直接执行 transitionTo 方法去执行切换当前路由线路相关逻辑
     if (history instanceof HTML5History) {
-      history.transitionTo(history.getCurrentLocation())
+      history.transitionTo(history.getCurrentLocation()) //history.getCurrentLocation() 返回的是 '/'+base + search+hash
+      //如果是hash类型,先调用setupListeners设置history监听然后再调用transitionTo方法切换当前路由线路相关逻辑
     } else if (history instanceof HashHistory) {
       const setupHashListener = () => {
         history.setupListeners()
@@ -145,6 +152,9 @@ export default class VueRouter {
       )
     }
 
+    //给history设置路由监听,listen这个方法定义在src/history/base.js中,listen回调会在confirmTransition方法回调函数的updateRoute方法中执行
+    //因为_route保存的是 this._router.history.current 当current路由切换时,_route会改变,又因为是响应式(在install.js的混入beforeCreate方法中定义的)
+    //所以会更新视图(<router-view> render 函数依赖_route)
     history.listen(route => {
       this.apps.forEach((app) => {
         app._route = route
@@ -276,9 +286,10 @@ function createHref (base: string, fullPath: string, mode) {
   return base ? cleanPath(base + '/' + path) : path
 }
 
+//将安装该插件(vue-router)的install方法赋给VueRouter中声明的静态方法install，供Vue.use()方法内部调用，来执行插件的安装
 VueRouter.install = install
 VueRouter.version = '__VERSION__'
-
+//如果是浏览器环境并且window对象上挂载了Vue,则执行自动安装vue-router插件
 if (inBrowser && window.Vue) {
   window.Vue.use(VueRouter)
 }

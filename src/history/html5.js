@@ -10,10 +10,11 @@ import { pushState, replaceState, supportsPushState } from '../util/push-state'
 export class HTML5History extends History {
   constructor (router: Router, base: ?string) {
     super(router, base)
-
+   
+    //滚动位置有关的属性
     const expectScroll = router.options.scrollBehavior
     const supportsScroll = supportsPushState && expectScroll
-
+    //如果history模式下当前浏览器支持PushState方法则调用setupScroll方法去通过添加 popstate 监听 设置滚动位置
     if (supportsScroll) {
       setupScroll()
     }
@@ -24,6 +25,7 @@ export class HTML5History extends History {
     // 只有在做出浏览器动作时，才会触发该事件，如用户点击浏览器的回退按钮
     // （或者在Javascript代码中调用history.back()或者history.forward()、history.go()方法）
     window.addEventListener('popstate', e => {
+      //当前激活态的路由线路
       const current = this.current
 
       // Avoiding first `popstate` event dispatched in some browsers but first
@@ -32,9 +34,10 @@ export class HTML5History extends History {
       if (this.current === START && location === initLocation) {
         return
       }
-
+      //此时说明发生了页面栈前进或者回退,调用transitionTo方法去切换路由线路
       this.transitionTo(location, route => {
         if (supportsScroll) {
+          //根据设置的滚动位置去执行滚动方法
           handleScroll(router, route, current, true)
         }
       })
@@ -69,9 +72,8 @@ export class HTML5History extends History {
       push ? pushState(current) : replaceState(current)
     }
   }
-/**
- * 
- */
+
+  
   getCurrentLocation (): string {
     return getLocation(this.base)
   }

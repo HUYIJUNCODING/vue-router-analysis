@@ -15,6 +15,12 @@ const encode = str => encodeURIComponent(str)
 
 const decode = decodeURIComponent
 
+/**
+ * 解析query参数
+ * @param {*} query 
+ * @param {*} extraQuery 
+ * @param {*} _parseQuery 
+ */
 export function resolveQuery (
   query: ?string,
   extraQuery: Dictionary<string> = {},

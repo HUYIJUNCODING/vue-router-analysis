@@ -18,8 +18,8 @@ const router = new VueRouter({
   base: __dirname,
   routes: [
     { path: '/', component: Home },
-    { path: '/foo', name: 'foo1', component: Foo },
-    { path: '/bar', component: Bar },
+    { path: '/foo', name: 'foo1', },
+    { path: '/foo/bar', component: Bar },
     { path: '/é', component: Unicode }
   ]
 })
@@ -35,7 +35,7 @@ new Vue({
       <h1>Basic</h1>
       <ul>
         <li><router-link to="/">/</router-link></li>
-        <li><router-link to="/foo">/foo</router-link></li>
+        <li><router-link to="/foo/bar">/foo/bar</router-link></li>
         <li><router-link :to='{params: {a:11}}'>/bar</router-link></li>
         <router-link tag="li" to="/bar" :event="['mousedown', 'touchstart']">
           <a>/bar</a>
