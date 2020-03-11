@@ -34,7 +34,7 @@ export class History {
   constructor (router: Router, base: ?string) {
     //将router实例挂载到history实例上
     this.router = router
-    //规范化base 
+    //规范化base,如果未配置则给默认值:'/'
     this.base = normalizeBase(base)
 
     // start with a route object that stands for "nowhere"
@@ -87,11 +87,11 @@ export class History {
   ) {
     //调用match方法,匹配routeRecord生成新的rotue(最终态route,this.$route就是这个route)
     const route = this.router.match(location, this.current) 
-    //执行confirmTransition 确认过渡方法(该方法会执行真正的路由跳转)
+    //执行confirmTransition 确认过渡方法(该方法会执行真正的路由切换)
     this.confirmTransition(
       route,
-      () => {
-        //更新route
+      () => { //该回调函数在下方第二个runQueue()中执行
+        //更新当前路由 this.current = route, app._route = route
         this.updateRoute(route)
         onComplete && onComplete(route)
         this.ensureURL()
@@ -159,7 +159,7 @@ export class History {
       route.matched
     )
    
-    //
+    //钩子函数对列
     const queue: Array<?NavigationGuard> = [].concat(
       // in-component leave guards
       //提取deactivated数组中所有失活组件的beforeRouteLeave(离开守卫)
@@ -216,6 +216,9 @@ export class History {
       }
     }
 
+    /**
+     * 执行对列(就是使用iterator迭代器迭代执行queue中的路由钩子)
+     */
     runQueue(queue, iterator, () => {
       const postEnterCbs = []
       const isValid = () => this.current === route
@@ -233,6 +236,7 @@ export class History {
         this.pending = null
         //对列执行完成后执行onComplete方法
         onComplete(route)
+        //
         if (this.router.app) {
           this.router.app.$nextTick(() => {
             postEnterCbs.forEach(cb => {
@@ -244,17 +248,28 @@ export class History {
     })
   }
 
+/**
+ * 更新路由,该方法的执行会触发<route-view>重新渲染组件
+ */
   updateRoute (route: Route) {
     const prev = this.current
-    this.current = route
-    this.cb && this.cb(route)
+    this.current = route //将最新的route赋值给current
+    this.cb && this.cb(route)//这里的cb就是我们之前在 src->index.js 的init方法最后调用 history.listen()传入的那个回调函数
+    //最终会执行 app._route = route, <route-view> 组件的render 函数对_route有依赖,因此_route改变,render函数会重新执行,因此更新视图
+
+    //执行afterafterHooks(afterEach)路由钩子函数
     this.router.afterHooks.forEach(hook => {
       hook && hook(route, prev)
     })
   }
 }
 
+/**
+ * 格式化base路径
+ * @param {*} base 
+ */
 function normalizeBase (base: ?string): string {
+  //如果base为配置,则给默认值
   if (!base) {
     if (inBrowser) {
       // respect <base> tag
@@ -267,10 +282,10 @@ function normalizeBase (base: ?string): string {
     }
   }
   // make sure there's the starting slash
-  if (base.charAt(0) !== '/') {
+  if (base.charAt(0) !== '/') { //如果配置了base但不是以'/'开头,则强制开头加'/'
     base = '/' + base
   }
-  // remove trailing slash
+  // remove trailing slash 将base尾部的'/'用''代替去掉
   return base.replace(/\/$/, '')
 }
 

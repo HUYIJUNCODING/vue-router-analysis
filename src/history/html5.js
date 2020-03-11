@@ -48,15 +48,32 @@ export class HTML5History extends History {
     window.history.go(n)
   }
 
+  /**
+   * push方法
+   * @param {*} location 
+   * @param {*} onComplete 
+   * @param {*} onAbort 
+   */
   push (location: RawLocation, onComplete?: Function, onAbort?: Function) {
     const { current: fromRoute } = this
-    this.transitionTo(location, route => {
+    this.transitionTo(location, route => { //确认路由切换后的成功回调函数,在confirmTransition中执行
+      //通过调用浏览器原生history对象下的pushState方法将当前浏览器url地址更改为目标路由地址,注意这里只更改浏览器url地址,并不会
+      //更新页面重新渲染,页面重新渲染是通过app_route=route引起<route-view>组件render函数执行的.触发渲染在该回调函数执行的上一行代码中
+     // ('就是base.js里的transitionTo方法中的第二个参数(回调函数)里的 this.updateRoute(route)这句代码')
       pushState(cleanPath(this.base + route.fullPath))
+      //滚动位置有关
       handleScroll(this.router, route, fromRoute, false)
+      //执行push方法传递进来的 onComplete 回调函数(如果没有传则默认执行resolve方法)
       onComplete && onComplete(route)
     }, onAbort)
   }
 
+  /**
+   * replace方法,跟push执行流程一样,只是调用浏览器原生 history 对象中的 replaceState()方法更新浏览器页面栈
+   * @param {*} location 
+   * @param {*} onComplete 
+   * @param {*} onAbort 
+   */
   replace (location: RawLocation, onComplete?: Function, onAbort?: Function) {
     const { current: fromRoute } = this
     this.transitionTo(location, route => {
@@ -65,7 +82,7 @@ export class HTML5History extends History {
       onComplete && onComplete(route)
     }, onAbort)
   }
-
+  
   ensureURL (push?: boolean) {
     if (getLocation(this.base) !== this.current.fullPath) {
       const current = cleanPath(this.base + this.current.fullPath)

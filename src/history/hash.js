@@ -11,6 +11,7 @@ export class HashHistory extends History {
   constructor (router: Router, base: ?string, fallback: boolean) {
     super(router, base)
     // check history fallback deeplinking
+    //说明当前浏览器不支持history模式,则采用hash模式降级处理
     if (fallback && checkFallback(this.base)) {
       return
     }
@@ -97,6 +98,9 @@ function checkFallback (base) {
   }
 }
 
+/**
+ * 保证默认进入的时候对应的 hash 值是以 / 开头的，如果不是则给hash值前开头强制加'/'(始终保持hash值是以'/'开头)。
+ */
 function ensureSlash (): boolean {
   const path = getHash()
   if (path.charAt(0) === '/') {
@@ -109,7 +113,7 @@ function ensureSlash (): boolean {
 export function getHash (): string {
   // We can't use window.location.hash here because it's not
   // consistent across browsers - Firefox will pre-decode it!
-  let href = window.location.href
+  let href = window.location.href //当前url地址
   const index = href.indexOf('#')
   // empty path
   if (index < 0) return ''
@@ -132,7 +136,7 @@ export function getHash (): string {
 }
 
 function getUrl (path) {
-  const href = window.location.href
+  const href = window.location.href 
   const i = href.indexOf('#')
   const base = i >= 0 ? href.slice(0, i) : href
   return `${base}#${path}`

@@ -20,36 +20,37 @@ import type { Matcher } from './create-matcher'
  */
 export default class VueRouter {
   //声明一个 install 静态方法，安装插件的 install方法会赋给该静态方法，下面会看到。
-  static install: () => void;
-  static version: string;
+  static install: () => void
+  static version: string
 
-  app: any;
-  apps: Array<any>;
-  ready: boolean;
-  readyCbs: Array<Function>;
-  options: RouterOptions;
-  mode: string;
-  history: HashHistory | HTML5History | AbstractHistory;
-  matcher: Matcher;
-  fallback: boolean;
-  beforeHooks: Array<?NavigationGuard>;
-  resolveHooks: Array<?NavigationGuard>;
-  afterHooks: Array<?AfterNavigationHook>;
+  app: any
+  apps: Array<any>
+  ready: boolean
+  readyCbs: Array<Function>
+  options: RouterOptions
+  mode: string
+  history: HashHistory | HTML5History | AbstractHistory
+  matcher: Matcher
+  fallback: boolean
+  beforeHooks: Array<?NavigationGuard>
+  resolveHooks: Array<?NavigationGuard>
+  afterHooks: Array<?AfterNavigationHook>
 
-  constructor (options: RouterOptions = {}) {
+  constructor(options: RouterOptions = {}) {
     this.app = null //表示vue根实例
     this.apps = [] // 保存拥有$options.router 属性的 Vue 实例,一般也就是vue根实例 [app]
     this.options = options //new VueRoter()时候传入的options路由配置
     this.beforeHooks = [] //保存beforeEach路由钩子
     this.resolveHooks = [] //保存beforeResolve路由钩子
     this.afterHooks = [] //保存afterEach路由钩子
-    //路由匹配器,createMatcher会返回{ addRoutes,match } 
-    this.matcher = createMatcher(options.routes || [], this) 
+    //路由匹配器,createMatcher会返回{ addRoutes,match }
+    this.matcher = createMatcher(options.routes || [], this)
 
     //路由模式
     let mode = options.mode || 'hash'
     //当前浏览器不支持history模式,根据选项中fallback值(true/false)决定是否降级转为hash模式
-    this.fallback = mode === 'history' && !supportsPushState && options.fallback !== false
+    this.fallback =
+      mode === 'history' && !supportsPushState && options.fallback !== false
     if (this.fallback) {
       mode = 'hash'
     }
@@ -57,7 +58,7 @@ export default class VueRouter {
     if (!inBrowser) {
       mode = 'abstract'
     }
-    
+
     this.mode = mode
 
     //初始化对应模式下的history实例
@@ -82,11 +83,11 @@ export default class VueRouter {
    * 执行路由匹配,会根据 raw:导航去哪的路由信息(就是我们使用push/replace方法的第一个参数) 和current:当前路由信息,计算匹配出一个新的route
    * 这个新的route就是最终的route(this.$route访问到的)
    * @param {*} raw
-   * @param {*} current 
-   * @param {*} redirectedFrom 
+   * @param {*} current
+   * @param {*} redirectedFrom
    */
-  match (
-    raw: RawLocation,//push方法的第一个参数(要去的路由)
+  match(
+    raw: RawLocation, //push方法的第一个参数(要去的路由)
     current?: Route, //当前路由信息(对象)
     redirectedFrom?: Location
   ): Route {
@@ -94,7 +95,7 @@ export default class VueRouter {
     return this.matcher.match(raw, current, redirectedFrom)
   }
 
-  get currentRoute (): ?Route {
+  get currentRoute(): ?Route {
     return this.history && this.history.current
   }
 
@@ -102,13 +103,14 @@ export default class VueRouter {
    * 初始化router
    * @param {*} app //app为Vue根实例
    */
-  init (app: any /* Vue component instance */) {
+  init(app: any /* Vue component instance */) {
     //断言插件是否已被安装，如果否，则报错提示。
-    process.env.NODE_ENV !== 'production' && assert(
-      install.installed,
-      `not installed. Make sure to call \`Vue.use(VueRouter)\` ` +
-      `before creating root instance.`
-    )
+    process.env.NODE_ENV !== 'production' &&
+      assert(
+        install.installed,
+        `not installed. Make sure to call \`Vue.use(VueRouter)\` ` +
+          `before creating root instance.`
+      )
     //apps是个数组，专门用来存放app实例（vue根实例）
     this.apps.push(app)
 
@@ -134,7 +136,6 @@ export default class VueRouter {
     }
     //将Vue根实例挂载到router实例的app内置属性上
     this.app = app
-
     //history实例
     const history = this.history
     //如果当前 history实例是 HTML5History 类型，则直接执行 transitionTo 方法去执行切换当前路由线路相关逻辑
@@ -156,33 +157,52 @@ export default class VueRouter {
     //因为_route保存的是 this._router.history.current 当current路由切换时,_route会改变,又因为是响应式(在install.js的混入beforeCreate方法中定义的)
     //所以会更新视图(<router-view> render 函数依赖_route)
     history.listen(route => {
-      this.apps.forEach((app) => {
+      this.apps.forEach(app => {
         app._route = route
       })
     })
   }
 
-  beforeEach (fn: Function): Function {
+  /**
+   * 注册 beforeEach 路由钩子函数
+   * @param {*} fn 
+   */
+  beforeEach(fn: Function): Function {
     return registerHook(this.beforeHooks, fn)
   }
 
-  beforeResolve (fn: Function): Function {
+  /**
+   * 注册 beforeResolve 路由钩子函数
+   * @param {*} fn 
+   */
+  beforeResolve(fn: Function): Function {
     return registerHook(this.resolveHooks, fn)
   }
 
-  afterEach (fn: Function): Function {
+  /**
+   * 注册 afterEach 路由钩子函数
+   * 
+   * @param {*} fn 
+   */
+  afterEach(fn: Function): Function {
     return registerHook(this.afterHooks, fn)
   }
 
-  onReady (cb: Function, errorCb?: Function) {
+  onReady(cb: Function, errorCb?: Function) {
     this.history.onReady(cb, errorCb)
   }
 
-  onError (errorCb: Function) {
+  onError(errorCb: Function) {
     this.history.onError(errorCb)
   }
 
-  push (location: RawLocation, onComplete?: Function, onAbort?: Function) {
+  /**
+   * push 方法
+   * @param {*} location 
+   * @param {*} onComplete 
+   * @param {*} onAbort 
+   */
+  push(location: RawLocation, onComplete?: Function, onAbort?: Function) {
     // $flow-disable-line
     if (!onComplete && !onAbort && typeof Promise !== 'undefined') {
       return new Promise((resolve, reject) => {
@@ -193,7 +213,13 @@ export default class VueRouter {
     }
   }
 
-  replace (location: RawLocation, onComplete?: Function, onAbort?: Function) {
+  /**
+   * replace方法
+   * @param {*} location 
+   * @param {*} onComplete 
+   * @param {*} onAbort 
+   */
+  replace(location: RawLocation, onComplete?: Function, onAbort?: Function) {
     // $flow-disable-line
     if (!onComplete && !onAbort && typeof Promise !== 'undefined') {
       return new Promise((resolve, reject) => {
@@ -204,19 +230,19 @@ export default class VueRouter {
     }
   }
 
-  go (n: number) {
+  go(n: number) {
     this.history.go(n)
   }
 
-  back () {
+  back() {
     this.go(-1)
   }
 
-  forward () {
+  forward() {
     this.go(1)
   }
 
-  getMatchedComponents (to?: RawLocation | Route): Array<any> {
+  getMatchedComponents(to?: RawLocation | Route): Array<any> {
     const route: any = to
       ? to.matched
         ? to
@@ -225,14 +251,17 @@ export default class VueRouter {
     if (!route) {
       return []
     }
-    return [].concat.apply([], route.matched.map(m => {
-      return Object.keys(m.components).map(key => {
-        return m.components[key]
+    return [].concat.apply(
+      [],
+      route.matched.map(m => {
+        return Object.keys(m.components).map(key => {
+          return m.components[key]
+        })
       })
-    }))
+    )
   }
 
-  resolve (
+  resolve(
     to: RawLocation,
     current?: Route,
     append?: boolean
@@ -245,12 +274,7 @@ export default class VueRouter {
     resolved: Route
   } {
     current = current || this.history.current
-    const location = normalizeLocation(
-      to,
-      current,
-      append,
-      this
-    )
+    const location = normalizeLocation(to, current, append, this)
     const route = this.match(location, current)
     const fullPath = route.redirectedFrom || route.fullPath
     const base = this.history.base
@@ -265,7 +289,7 @@ export default class VueRouter {
     }
   }
 
-  addRoutes (routes: Array<RouteConfig>) {
+  addRoutes(routes: Array<RouteConfig>) {
     this.matcher.addRoutes(routes)
     if (this.history.current !== START) {
       this.history.transitionTo(this.history.getCurrentLocation())
@@ -273,7 +297,7 @@ export default class VueRouter {
   }
 }
 
-function registerHook (list: Array<any>, fn: Function): Function {
+function registerHook(list: Array<any>, fn: Function): Function {
   list.push(fn)
   return () => {
     const i = list.indexOf(fn)
@@ -281,7 +305,7 @@ function registerHook (list: Array<any>, fn: Function): Function {
   }
 }
 
-function createHref (base: string, fullPath: string, mode) {
+function createHref(base: string, fullPath: string, mode) {
   var path = mode === 'hash' ? '#' + fullPath : fullPath
   return base ? cleanPath(base + '/' + path) : path
 }

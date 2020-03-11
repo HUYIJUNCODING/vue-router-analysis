@@ -3,6 +3,10 @@
 import { _Vue } from '../install'
 import { warn, isError } from './warn'
 
+/**
+ * 解析异常组件
+ * @param {*} matched 
+ */
 export function resolveAsyncComponents (matched: Array<RouteRecord>): Function {
   return (to, from, next) => {
     let hasAsync = false
