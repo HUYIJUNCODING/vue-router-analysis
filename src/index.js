@@ -141,13 +141,13 @@ export default class VueRouter {
     //如果当前 history实例是 HTML5History 类型，则直接执行 transitionTo 方法去执行切换当前路由线路相关逻辑
     if (history instanceof HTML5History) {
       history.transitionTo(history.getCurrentLocation()) //history.getCurrentLocation() 返回的是 '/'+base + search+hash
-      //如果是hash类型,先调用setupListeners设置history监听然后再调用transitionTo方法切换当前路由线路相关逻辑
+      //如果是hash类型,则先设置history监听方法,然后再调用transitionTo切换当前路由线路相关逻辑
     } else if (history instanceof HashHistory) {
       const setupHashListener = () => {
         history.setupListeners()
       }
       history.transitionTo(
-        history.getCurrentLocation(),
+        history.getCurrentLocation(), //浏览器地址栏 # 后面的部分
         setupHashListener,
         setupHashListener
       )

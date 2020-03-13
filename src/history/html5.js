@@ -58,7 +58,7 @@ export class HTML5History extends History {
     const { current: fromRoute } = this
     this.transitionTo(location, route => { //确认路由切换后的成功回调函数,在confirmTransition中执行
       //通过调用浏览器原生history对象下的pushState方法将当前浏览器url地址更改为目标路由地址,注意这里只更改浏览器url地址,并不会
-      //更新页面重新渲染,页面重新渲染是通过app_route=route引起<route-view>组件render函数执行的.触发渲染在该回调函数执行的上一行代码中
+      //更新页面重新渲染,页面重新渲染是通过app_route=route引起<route-view>组件render函数执行的.触发渲染在该回调函数调用的上一行代码中
      // ('就是base.js里的transitionTo方法中的第二个参数(回调函数)里的 this.updateRoute(route)这句代码')
       pushState(cleanPath(this.base + route.fullPath))
       //滚动位置有关

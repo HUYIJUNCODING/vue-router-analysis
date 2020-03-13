@@ -15,6 +15,7 @@ export class HashHistory extends History {
     if (fallback && checkFallback(this.base)) {
       return
     }
+    //保证默认进入的时候对应的 hash 值是以 / 开头的
     ensureSlash()
   }
 
@@ -48,12 +49,23 @@ export class HashHistory extends History {
     )
   }
 
+  /**
+   * push方法
+   * @param {*} location 
+   * @param {*} onComplete 
+   * @param {*} onAbort 
+   */
   push (location: RawLocation, onComplete?: Function, onAbort?: Function) {
     const { current: fromRoute } = this
     this.transitionTo(
       location,
-      route => {
-        pushHash(route.fullPath)
+      route => {//确认路由切换后的成功回调函数,在confirmTransition中执行
+        //通过调用浏览器原生history对象下的pushState方法将当前浏览器url地址更改为目标路由地址,注意这里只更改浏览器url地址,并不会
+        //更新页面重新渲染,页面重新渲染是通过app_route=route引起<route-view>组件render函数执行的.触发渲染在该回调函数调用地方的上一行代码中
+       // ('就是base.js里的transitionTo方法中的第二个参数(回调函数)里的 this.updateRoute(route)这句代码')
+
+      
+        pushHash(route.fullPath)//切换浏览器url
         handleScroll(this.router, route, fromRoute, false)
         onComplete && onComplete(route)
       },
@@ -61,6 +73,12 @@ export class HashHistory extends History {
     )
   }
 
+  /**
+   * replace方法
+   * @param {*} location 
+   * @param {*} onComplete 
+   * @param {*} onAbort 
+   */
   replace (location: RawLocation, onComplete?: Function, onAbort?: Function) {
     const { current: fromRoute } = this
     this.transitionTo(
@@ -85,6 +103,9 @@ export class HashHistory extends History {
     }
   }
 
+  /**
+   * 获取当前 浏览器url地址 hash 内容 (#号后面的东西)
+   */
   getCurrentLocation () {
     return getHash()
   }
@@ -110,50 +131,59 @@ function ensureSlash (): boolean {
   return false
 }
 
+/**
+ * 获取浏览器url地址hash(#后面的东西)
+ */
 export function getHash (): string {
   // We can't use window.location.hash here because it's not
   // consistent across browsers - Firefox will pre-decode it!
-  let href = window.location.href //当前url地址
+  //我们不能在这里使用 window.location.hash，因为它不是,跨浏览器一致-Firefox将对其进行预解码
+
+  let href = window.location.href //当前url地址 例如:http://www.myurl.com:8080/#/list/detail?id=123&username=xxx
   const index = href.indexOf('#')
-  // empty path
+  // empty path 如果#不存在,则直接返回 ''
   if (index < 0) return ''
 
-  href = href.slice(index + 1)
+  href = href.slice(index + 1) //拿到 # 后面的部分重新给 href
   // decode the hash but not the search or hash
   // as search(query) is already decoded
   // https://github.com/vuejs/vue-router/issues/2708
   const searchIndex = href.indexOf('?')
-  if (searchIndex < 0) {
+  if (searchIndex < 0) {// '?' 不存在
     const hashIndex = href.indexOf('#')
-    if (hashIndex > -1) {
+    if (hashIndex > -1) {//# 存在
       href = decodeURI(href.slice(0, hashIndex)) + href.slice(hashIndex)
     } else href = decodeURI(href)
-  } else {
+  } else { // '?' 存在
     href = decodeURI(href.slice(0, searchIndex)) + href.slice(searchIndex)
   }
 
   return href
 }
 
-function getUrl (path) {
+/**
+ * 获取当前路由页面对应的完成url 域名+端口 + # + fullPath
+ * @param {*} path 
+ */
+function getUrl (path) {//path: fullPath
   const href = window.location.href 
   const i = href.indexOf('#')
   const base = i >= 0 ? href.slice(0, i) : href
   return `${base}#${path}`
 }
 
-function pushHash (path) {
-  if (supportsPushState) {
+function pushHash (path) {//path: fullPath
+  if (supportsPushState) {  //如果支持原生 history.pushState 方法则采用pushState更改当前浏览器页面栈记录
     pushState(getUrl(path))
   } else {
-    window.location.hash = path
+    window.location.hash = path //否则采用直接替换hash方式
   }
 }
 
 function replaceHash (path) {
   if (supportsPushState) {
-    replaceState(getUrl(path))
+    replaceState(getUrl(path))// history.replaceState
   } else {
-    window.location.replace(getUrl(path))
+    window.location.replace(getUrl(path)) //replace():Removes the current page from the session history and navigates to the given URL.
   }
 }

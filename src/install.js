@@ -50,6 +50,7 @@ export function install (Vue) {
        //给当前vue根实例定义_route属性,并调用 Vue.util 中的 defineReactive 工具方法将其处理成响应式,其值为history.current
        //history.current 保存的就是当前route(当前被激活的路由)信息,因为<route-view>组件的render函数依赖_route,所以当
        //history.current变更会导致_route变更,然后触发<router-view>组件render函数执行,更新视图
+       console.log(2)
         Vue.util.defineReactive(this, '_route', this._router.history.current)
       } else {
         //否则不是vue根实例，初始化一个_routerRoot内置属性，然后找到其父节点，将其父节点上的_routerRoot引用给当前
