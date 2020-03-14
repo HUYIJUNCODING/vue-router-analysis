@@ -15,7 +15,8 @@ export class HashHistory extends History {
     if (fallback && checkFallback(this.base)) {
       return
     }
-    //保证默认进入的时候对应的 hash 值是以 / 开头的
+    //这里是hash模式下的url中路由地址的初始化,比如我们本地启动项目的时候 用的是http://localhost:8080,但会发现启动后尾部会自动加上/#/ 变成: http://localhost:8080/#/,
+    //这个末尾加/#/就是这里完成的
     ensureSlash()
   }
 
@@ -96,6 +97,10 @@ export class HashHistory extends History {
     window.history.go(n)
   }
 
+  /**
+   * 确定url(也就是将url地址变更成最新的)
+   * @param {*} push 
+   */
   ensureURL (push?: boolean) {
     const current = this.current.fullPath
     if (getHash() !== current) {

@@ -94,6 +94,7 @@ export class History {
         //更新当前路由 this.current = route, app._route = route
         this.updateRoute(route)
         onComplete && onComplete(route)
+        //执行变更url(将url中的路由地址替换成最新的)
         this.ensureURL()
 
         // fire ready cbs once
