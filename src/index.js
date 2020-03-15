@@ -278,7 +278,7 @@ export default class VueRouter {
     const route = this.match(location, current)
     const fullPath = route.redirectedFrom || route.fullPath
     const base = this.history.base
-    const href = createHref(base, fullPath, this.mode)
+    const href = createHref(base, fullPath, this.mode) //
     return {
       location,
       route,

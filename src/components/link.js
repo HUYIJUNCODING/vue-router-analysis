@@ -13,28 +13,38 @@ const noop = () => {}
 
 export default {
   name: 'RouterLink',
+  //可以在<router-link>标签上出入的props属性,to为必填项,其余为可选
   props: {
+    //to
     to: {
-      type: toTypes,
+      type: toTypes, //类型为对象或者字符串
       required: true
     },
+
+    //tag: 默认为 a 标签
     tag: {
       type: String,
       default: 'a'
     },
+    //是否是严格匹配
     exact: Boolean,
     append: Boolean,
+    //replace
     replace: Boolean,
     activeClass: String,
     exactActiveClass: String,
+    //event 默认是click,类型数组或者字符串
     event: {
       type: eventTypes,
       default: 'click'
     }
   },
+  //<router-link>组件渲染也是依赖render函数
   render (h: Function) {
-    const router = this.$router
-    const current = this.$route
+    const router = this.$router //router对象
+    const current = this.$route //当前route对象
+    //调用resolve先进行路由解析,location: 规范化后的目标location,route:通过match匹配然后调用createRoute生成的 最终目标route
+    //href: 通过调用 createHref 计算出来的最终要跳转的href
     const { location, route, href } = router.resolve(
       this.to,
       current,
@@ -45,6 +55,7 @@ export default {
     const globalActiveClass = router.options.linkActiveClass
     const globalExactActiveClass = router.options.linkExactActiveClass
     // Support global empty active class
+    //这里是对 exactActiveClass  和 activeClass 进行处理
     const activeClassFallback =
       globalActiveClass == null ? 'router-link-active' : globalActiveClass
     const exactActiveClassFallback =
@@ -63,10 +74,15 @@ export default {
       : route
 
     classes[exactActiveClass] = isSameRoute(current, compareTarget)
+    //当配置 exact 为 true 的时候，只有当目标路径和当前路径完全匹配的时候，会添加 exactActiveClass；
+    //当目标路径包含当前路径的时候，会添加 activeClass。
     classes[activeClass] = this.exact
       ? classes[exactActiveClass]
       : isIncludedRoute(current, compareTarget)
 
+    
+    //handler函数 当监听到点击事件或者通过props传入的事件类型发生时就会执行handler函数,最终会调用router.push 或 router.replace执行路由跳转
+    //这也就是为啥说<router-link>最终也是通过调用push 或者replace方法进行路由跳转的原因了
     const handler = e => {
       if (guardEvent(e)) {
         if (this.replace) {
@@ -115,6 +131,8 @@ export default {
       }
     }
 
+    //判断props 属性 tag 是否是a标签(<router-link> 默认会渲染成 <a> 标签),如果是则将事件直接绑定以及将跳转路径href直接赋给attrs属性,
+    //如果不是则尝试递归去寻找其子元素中的a标签如果找到则将事件绑定到a标签上并添加href属性,否则(没有找到)则将事件直接绑定到当前tag元素本身
     if (this.tag === 'a') {
       data.on = on
       data.attrs = { href }
@@ -155,6 +173,7 @@ export default {
   }
 }
 
+//守卫函数: 会守卫点击事件，让浏览器不再重新加载页面
 function guardEvent (e) {
   // don't redirect with control keys
   if (e.metaKey || e.altKey || e.ctrlKey || e.shiftKey) return
@@ -174,6 +193,7 @@ function guardEvent (e) {
   return true
 }
 
+//当我们传入的props tag 不是 a标签的时候则会递归的方式尝试寻找其子元素的 a标签如果找到则返回tag为 a 的子元素
 function findAnchor (children) {
   if (children) {
     let child
