@@ -27,7 +27,8 @@ export function createMatcher (
   const { pathList, pathMap, nameMap } = createRouteMap(routes)
   
   /**
-   * 动态添加路由,所以我们可以在外部通过该方法动态添加路由配置,会调用createRouteMap方法往路由映射表里添加传入routes RouteRecord
+   * 动态添加路由,所以我们可以在外部通过该方法动态添加路由配置,然后会调用createRouteMap方法往路由映射表里添加传入的routes对应的 RouteRecord并将
+   * 对应关系记录进pathList,pathMap,nameMap中
    * @param {*} routes 
    */
   function addRoutes (routes) {

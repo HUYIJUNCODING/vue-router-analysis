@@ -4,7 +4,7 @@ import { _Vue } from '../install'
 import { warn, isError } from './warn'
 
 /**
- * 解析异常组件
+ * 解析异步路由组件
  * @param {*} matched 
  */
 export function resolveAsyncComponents (matched: Array<RouteRecord>): Function {

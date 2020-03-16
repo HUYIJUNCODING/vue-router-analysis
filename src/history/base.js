@@ -160,7 +160,7 @@ export class History {
       route.matched
     )
    
-    //钩子函数对列
+    //路由对列，类型为数组
     const queue: Array<?NavigationGuard> = [].concat(
       // in-component leave guards
       //提取deactivated数组中所有失活组件的beforeRouteLeave(离开守卫)

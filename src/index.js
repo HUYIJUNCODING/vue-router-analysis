@@ -19,7 +19,7 @@ import type { Matcher } from './create-matcher'
  * VueRouter
  */
 export default class VueRouter {
-  //声明一个 install 静态方法，安装插件的 install方法会赋给该静态方法，下面会看到。
+  //声明一个 install 静态方法，安装插件的 install方法会赋给它，下面会看到。
   static install: () => void
   static version: string
 
@@ -165,7 +165,7 @@ export default class VueRouter {
 
   /**
    * 注册 beforeEach 路由钩子函数
-   * @param {*} fn 
+   * @param {*} fn
    */
   beforeEach(fn: Function): Function {
     return registerHook(this.beforeHooks, fn)
@@ -173,7 +173,7 @@ export default class VueRouter {
 
   /**
    * 注册 beforeResolve 路由钩子函数
-   * @param {*} fn 
+   * @param {*} fn
    */
   beforeResolve(fn: Function): Function {
     return registerHook(this.resolveHooks, fn)
@@ -181,8 +181,8 @@ export default class VueRouter {
 
   /**
    * 注册 afterEach 路由钩子函数
-   * 
-   * @param {*} fn 
+   *
+   * @param {*} fn
    */
   afterEach(fn: Function): Function {
     return registerHook(this.afterHooks, fn)
@@ -198,9 +198,9 @@ export default class VueRouter {
 
   /**
    * push 方法
-   * @param {*} location 
-   * @param {*} onComplete 
-   * @param {*} onAbort 
+   * @param {*} location
+   * @param {*} onComplete
+   * @param {*} onAbort
    */
   push(location: RawLocation, onComplete?: Function, onAbort?: Function) {
     // $flow-disable-line
@@ -215,9 +215,9 @@ export default class VueRouter {
 
   /**
    * replace方法
-   * @param {*} location 
-   * @param {*} onComplete 
-   * @param {*} onAbort 
+   * @param {*} location
+   * @param {*} onComplete
+   * @param {*} onAbort
    */
   replace(location: RawLocation, onComplete?: Function, onAbort?: Function) {
     // $flow-disable-line
@@ -243,11 +243,7 @@ export default class VueRouter {
   }
 
   getMatchedComponents(to?: RawLocation | Route): Array<any> {
-    const route: any = to
-      ? to.matched
-        ? to
-        : this.resolve(to).route
-      : this.currentRoute
+    const route: any = to ? to.matched ? to : this.resolve(to).route : this.currentRoute
     if (!route) {
       return []
     }
@@ -261,6 +257,12 @@ export default class VueRouter {
     )
   }
 
+  /**
+   * 路由解析
+   * @param {*} to 
+   * @param {*} current 
+   * @param {*} append 
+   */
   resolve(
     to: RawLocation,
     current?: Route,
@@ -278,7 +280,7 @@ export default class VueRouter {
     const route = this.match(location, current)
     const fullPath = route.redirectedFrom || route.fullPath
     const base = this.history.base
-    const href = createHref(base, fullPath, this.mode) //
+    const href = createHref(base, fullPath, this.mode) //生成 href 要跳转的路由全路径
     return {
       location,
       route,
@@ -289,6 +291,10 @@ export default class VueRouter {
     }
   }
 
+  /**
+   * 动态添加路由配置
+   * @param {*} routes
+   */
   addRoutes(routes: Array<RouteConfig>) {
     this.matcher.addRoutes(routes)
     if (this.history.current !== START) {
@@ -297,6 +303,11 @@ export default class VueRouter {
   }
 }
 
+/**
+ * 注册钩子函数
+ * @param {*} list
+ * @param {*} fn
+ */
 function registerHook(list: Array<any>, fn: Function): Function {
   list.push(fn)
   return () => {
@@ -305,6 +316,12 @@ function registerHook(list: Array<any>, fn: Function): Function {
   }
 }
 
+/**
+ * 创建 href路由跳转路径
+ * @param {*} base
+ * @param {*} fullPath
+ * @param {*} mode
+ */
 function createHref(base: string, fullPath: string, mode) {
   var path = mode === 'hash' ? '#' + fullPath : fullPath
   return base ? cleanPath(base + '/' + path) : path

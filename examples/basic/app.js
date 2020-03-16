@@ -4,9 +4,9 @@ import VueRouter from 'vue-router'
 // 1. Use plugin.
 // This installs <router-view> and <router-link>,
 // and injects $router and $route to all router-enabled child components
-Vue.use(VueRouter)
 
-// 2. Define route components
+
+// 2. Define route componentsVue.use(VueRouter)
 const Home = { template: '<div>home</div>' }
 const Foo = { template: '<div>foo</div>' }
 const Bar = { template: '<div>bar</div>' }

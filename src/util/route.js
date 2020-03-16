@@ -63,7 +63,7 @@ export const START = createRoute(null, {
 })
 
 /**
- * 从当前RouteRecord开始循环往上找parent,知道最外层(循环结束),每一次循环都会将当前record记录进一个数组中['parentRecord','childRecord']
+ * 从当前RouteRecord开始循环往上找parent,直到最外层(循环结束),每一次循环都会将当前record记录进一个数组中['parentRecord','childRecord']
  * 这样就将当前record线上所有record收集了起来(matched中的record就是这里收集的,因此叫formatMatch)
  * @param {*} record 
  */
