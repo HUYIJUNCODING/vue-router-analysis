@@ -40,9 +40,9 @@ export default class VueRouter {
     this.app = null //表示vue根实例
     this.apps = [] // 保存拥有$options.router 属性的 Vue 实例,一般也就是vue根实例 [app]
     this.options = options //new VueRoter()时候传入的options路由配置
-    this.beforeHooks = [] //保存beforeEach路由钩子
-    this.resolveHooks = [] //保存beforeResolve路由钩子
-    this.afterHooks = [] //保存afterEach路由钩子
+    this.beforeHooks = [] //保存beforeEach路由守卫
+    this.resolveHooks = [] //保存beforeResolve路由守卫
+    this.afterHooks = [] //保存afterEach路由守卫
     //路由匹配器,createMatcher会返回{ addRoutes,match }
     this.matcher = createMatcher(options.routes || [], this)
 
@@ -304,7 +304,7 @@ export default class VueRouter {
 }
 
 /**
- * 注册钩子函数
+ * 注册路由守卫
  * @param {*} list
  * @param {*} fn
  */

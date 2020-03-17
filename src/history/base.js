@@ -161,7 +161,7 @@ export class History {
     )
    
     //路由对列，类型为数组
-    const queue: Array<?NavigationGuard> = [].concat(
+    const queue: Array<?NavigationGuard> = [].concat( //[].concat([1,2,3],[4,5,6]) = [1,2,3,4,5,6]
       // in-component leave guards
       //提取deactivated数组中所有失活组件的beforeRouteLeave(离开守卫)
       extractLeaveGuards(deactivated),
@@ -172,7 +172,7 @@ export class History {
       //提取updated中所有可复用的组件中的beforeRouteUpdate 守卫
       extractUpdateHooks(updated),
       // in-config enter guards
-      //提取 actived 数组将要激活的路由配置中定义的 beforeEnter 守卫。
+      //提取 actived 数组中将要激活的路由配置中定义的 beforeEnter 守卫。
       activated.map(m => m.beforeEnter),
       // async components
       //解析activated数组中所有routeRecord里的异步路由组件
@@ -237,7 +237,7 @@ export class History {
         this.pending = null
         //对列执行完成后执行onComplete方法
         onComplete(route)
-        //
+        
         if (this.router.app) {
           this.router.app.$nextTick(() => {
             postEnterCbs.forEach(cb => {
@@ -331,7 +331,7 @@ function extractGuards (
   bind: Function,
   reverse?: boolean
 ): Array<?Function> {
-  //guards 是一个 '给instance绑定指定name 守卫' 的函数，或函数数组
+  //guards 是一个 '给instance绑定指定name 守卫' 的函数或函数数组
   const guards = flatMapComponents(records, (def, instance, match, key) => {
     //获取到records数组中 routeRecord 下的所有组件里面指定 name 的守卫
     const guard = extractGuard(def, name)
@@ -393,7 +393,7 @@ function bindGuard (guard: NavigationGuard, instance: ?_Vue): ?NavigationGuard {
 }
 
 /**
- * 提取actived数组中所有激活组件中的beforeRouteEnter守卫
+ * 提取actived数组中所有将要激活组件中的beforeRouteEnter守卫
  * @param {*} activated 
  * @param {*} cbs 
  * @param {*} isValid 
