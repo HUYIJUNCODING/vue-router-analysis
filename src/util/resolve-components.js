@@ -74,8 +74,8 @@ export function resolveAsyncComponents (matched: Array<RouteRecord>): Function {
 }
 
 /**
- * 通过调用flatten方法将matched(records)数组中的每一个routRecord返回的instances绑定guard路由钩子函数的二维数组平整为一维数组
- * 简单讲就是返回一个功能为给instance绑定指定名称路由钩子函数的一维数组
+ * 通过调用flatten方法将matched(records)数组中的每一个routRecord返回的给instances绑定guard守卫的二维数组平整为一维数组
+ * 简单讲就是返回一个功能为给instance绑定指定名称守卫的一维数组
  * @param {*} matched 
  * @param {*} fn 
  */
@@ -83,7 +83,7 @@ export function flatMapComponents (
   matched: Array<RouteRecord>,//records
   fn: Function
 ): Array<?Function> {
-  return flatten(matched.map(m => { //matched.map后返回 [[fn,fn,fn],[fn,fn,fn]],flatten方法将其平整为[fn,fn,fn,fn,fn,fn]
+  return flatten(matched.map(m => { //matched.map 返回 [[fn,fn,fn],[fn,fn,fn]],flatten方法将其平整为[fn,fn,fn,fn,fn,fn]
     return Object.keys(m.components).map(key => fn(
       m.components[key],
       m.instances[key],
