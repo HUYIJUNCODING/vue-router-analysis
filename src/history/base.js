@@ -166,13 +166,13 @@ export class History {
       //提取deactivated数组中所有失活组件的beforeRouteLeave(离开守卫)
       extractLeaveGuards(deactivated),
       // global before hooks
-      //全局的beforeEach钩子函数
+      //全局的beforeEach守卫
       this.router.beforeHooks,
       // in-component update hooks
-      //提取updated中所有可复用的组件中的beforeRouteUpdate路由钩子函数
+      //提取updated中所有可复用的组件中的beforeRouteUpdate 守卫
       extractUpdateHooks(updated),
       // in-config enter guards
-      //提取到actived数组中将要激活的路由配置中定义的 beforeEnter 函数。
+      //提取 actived 数组将要激活的路由配置中定义的 beforeEnter 守卫。
       activated.map(m => m.beforeEnter),
       // async components
       //解析activated数组中所有routeRecord里的异步路由组件
@@ -187,11 +187,11 @@ export class History {
         return abort()
       }
       try {
-        //hook就是当前要执行的路由钩子函数,你看标准的hook(to,from,next)格式,是不是很熟悉呀,对就是执行路由钩子函数啊
+        //hook就是当前要执行的守卫,标准的hook(to,from,next)格式,是不是很熟悉呀。
         hook(route, current, (to: any) => {
           if (to === false || isError(to)) {
             // next(false) -> abort navigation, ensure current URL
-            //next(false)阻断执行下一个钩子函数
+            //next(false)阻断执行下一个守卫
             this.ensureURL(true)
             abort(to)
           } else if (//切换路由线路
@@ -208,7 +208,7 @@ export class History {
             }
           } else {
             // confirm transition and pass on the value
-            //执行 step(index + 1),让循环继续执行这就是为啥钩子函数中一定要写next()才可以继续向下执行下一个钩子函数的原因
+            //执行 step(index + 1),让循环继续执行这就是为啥守卫中一定要写next()才可以继续向下执行下一个守卫的原因
             next(to)
           }
         })
@@ -218,14 +218,14 @@ export class History {
     }
 
     /**
-     * 执行对列(就是使用iterator迭代器迭代执行queue中的路由钩子)
+     * 执行对列(就是使用iterator迭代器迭代执行queue队列)
      */
     runQueue(queue, iterator, () => {
       const postEnterCbs = []
       const isValid = () => this.current === route
       // wait until async components are resolved before
       // extracting in-component enter guards
-      //提取到actived数组中所有将要激活组件的beforeRouteEnter路由钩子函数
+      //提取到actived数组中所有将要激活组件的beforeRouteEnter守卫
       const enterGuards = extractEnterGuards(activated, postEnterCbs, isValid)
       //queue中加入resolveHooks([beforeResolve])
       const queue = enterGuards.concat(this.router.resolveHooks)
@@ -258,7 +258,7 @@ export class History {
     this.cb && this.cb(route)//这里的cb就是我们之前在 src->index.js 的init方法最后调用 history.listen()传入的那个回调函数
     //最终会执行 app._route = route, <route-view> 组件的render 函数对_route有依赖,因此_route改变,render函数会重新执行,因此更新视图
 
-    //执行afterafterHooks(afterEach)路由钩子函数
+    //执行afterafterHooks(afterEach)守卫
     this.router.afterHooks.forEach(hook => {
       hook && hook(route, prev)
     })
@@ -319,7 +319,7 @@ function resolveQueue (
 }
 
 /**
- * 提取 RouteRecord中指定名称的的路由守卫(钩子)函数
+ * 提取 RouteRecord 中指定 name 的守卫
  * @param {*} records 
  * @param {*} name 
  * @param {*} bind 
@@ -331,23 +331,23 @@ function extractGuards (
   bind: Function,
   reverse?: boolean
 ): Array<?Function> {
-  //guards为,一个存放功能为给instance绑定指定名称路由钩子函数的一维数组
+  //guards 是一个 '给instance绑定指定name 守卫' 的函数，或函数数组
   const guards = flatMapComponents(records, (def, instance, match, key) => {
-    //获取到records数组中的routeREcord里的组件里面要获取的指定名称的路由钩子函数
+    //获取到records数组中 routeRecord 下的所有组件里面指定 name 的守卫
     const guard = extractGuard(def, name)
     if (guard) {
-      //返回instance的绑定guard钩子的绑定函数,当该函数每次执行,instance就会调用一次当前guard路由钩子函数
+       //返回 一个专门为instance绑定guard守卫的函数（或函数数组）,当绑定函数每次执行,instance就会调用一次当前guard路由守卫
       return Array.isArray(guard)
         ? guard.map(guard => bind(guard, instance, match, key))
         : bind(guard, instance, match, key)
     }
   })
-  //返回获取到的指定名称路由钩子函数的数组
+  //返回获取到的指定 name 守卫的数组
   return flatten(reverse ? guards.reverse() : guards)
 }
 
 /**
- * 获取def 组件中 对应名称的路由钩子函数
+ * 获取def 组件中 指定名称的守卫
  * @param {*} def 
  * @param {*} key 
  */
@@ -363,7 +363,7 @@ function extractGuard (
 }
 
 /**
- * 提取所有失活组件中定义的 beforeRouteLeave 路由钩子函数。
+ * 提取所有即将失活组件中定义的 beforeRouteLeave 守卫。
  * @param {*} deactivated 
  */
 function extractLeaveGuards (deactivated: Array<RouteRecord>): Array<?Function> {
@@ -371,7 +371,7 @@ function extractLeaveGuards (deactivated: Array<RouteRecord>): Array<?Function> 
 }
 
 /**
- * 提取所有可以复用组件中定义的beforeRouteUpdate路由钩子函数
+ * 提取所有可以复用组件中定义的beforeRouteUpdate 守卫
  * @param {*} updated 
  */
 function extractUpdateHooks (updated: Array<RouteRecord>): Array<?Function> {
@@ -379,13 +379,13 @@ function extractUpdateHooks (updated: Array<RouteRecord>): Array<?Function> {
 }
 
 /**
- * 绑定guard路由钩子函数到组件实例instance上
+ * 绑定guard 守卫到组件实例instance上
  * @param {*} guard 
  * @param {*} instance 
  */
 function bindGuard (guard: NavigationGuard, instance: ?_Vue): ?NavigationGuard {
   if (instance) {
-    //boundRouteGuard方法就是用来执行绑定路由钩子函数的(因为调用一次该方法,instance就会作为guard执行上下文调用guard)
+    //boundRouteGuard方法就是用来执行绑定的守卫(因为调用一次该方法,instance就会作为guard执行上下文调用guard)
     return function boundRouteGuard () {
       return guard.apply(instance, arguments)
     }
@@ -393,7 +393,7 @@ function bindGuard (guard: NavigationGuard, instance: ?_Vue): ?NavigationGuard {
 }
 
 /**
- * 提取actived数组中所有激活组件中的beforeRouteEnter路由钩子
+ * 提取actived数组中所有激活组件中的beforeRouteEnter守卫
  * @param {*} activated 
  * @param {*} cbs 
  * @param {*} isValid 
@@ -413,8 +413,8 @@ function extractEnterGuards (
 }
 
 /**
- * 绑定beforeRouteEnter会看到返回一个routeEnterGuard函数,当routeEnterGuard被执行的时候会返回guard这里的执行guard就是执行
- * beforeRouteEnter,注意下他的第三个参数(就是next函数)接收一个cb(回调),这个cb回调就是官方文档中特别提到的那个因为在beforeRouteEnter
+ * 绑定beforeRouteEnter会看到返回一个routeEnterGuard函数,当routeEnterGuard被执行的时候会返回guard.这里执行的guard就是
+ * beforeRouteEnter,注意下它的第三个参数(就是next函数)接收一个cb(回调),这个cb回调就是官方文档中特别提到的那个因为在beforeRouteEnter
  * 中拿不到当前组件实例,可以给next函数传入一个回调来访问组件实例的回调函数,cb如果是一个函数就会被push进cbs这个数组中,
  * 你可以向上追踪cbs会发现就是runQueue函数中第一行定义的那个postEnterCbs数组,这数组会在onComplete中执行,此时遍历postEnterCbs拿到cb然后调用
  * cb,这就是那句 '用创建好的实例调用 beforeRouteEnter 守卫中传给 next 的回调函数'。
