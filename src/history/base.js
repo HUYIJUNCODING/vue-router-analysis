@@ -94,7 +94,7 @@ export class History {
         //更新当前路由 this.current = route, app._route = route
         this.updateRoute(route)
         onComplete && onComplete(route)
-        //执行变更url(将url中的路由地址替换成最新的)
+        //锁定最新url(将浏览器url地址栏中的路由地址替换成当前最新的)
         this.ensureURL()
 
         // fire ready cbs once
@@ -238,6 +238,8 @@ export class History {
         //对列执行完成后执行onComplete方法
         onComplete(route)
         
+        //遍历 postEnterCbs 数组（数组元素就是 在項目中定义的 beforeRouteEnter 守卫里我們给 next 传入的用于在组件实例创建好后调用的那个回调函数）,
+        //这里就是执行这个回调的地方，因为此时组件实例已经被创建了
         if (this.router.app) {
           this.router.app.$nextTick(() => {
             postEnterCbs.forEach(cb => {
@@ -291,7 +293,7 @@ function normalizeBase (base: ?string): string {
 }
 
 /**
- * 解析队列,通过遍历对比current.matched和route.matched数组的routRecord,得到updated,activated,deactivated然后返回
+ * 解析队列,通过遍历对比current.matched和route.matched数组的 routRecord,得到updated,activated,deactivated然后返回
  * @param {*} current 
  * @param {*} next 
  */
@@ -413,7 +415,7 @@ function extractEnterGuards (
 }
 
 /**
- * 绑定beforeRouteEnter会看到返回一个routeEnterGuard函数,当routeEnterGuard被执行的时候会返回guard.这里执行的guard就是
+ * 绑定beforeRouteEnter 会看到返回一个routeEnterGuard函数,当routeEnterGuard被执行的时候会返回guard.这里执行的guard就是
  * beforeRouteEnter,注意下它的第三个参数(就是next函数)接收一个cb(回调),这个cb回调就是官方文档中特别提到的那个因为在beforeRouteEnter
  * 中拿不到当前组件实例,可以给next函数传入一个回调来访问组件实例的回调函数,cb如果是一个函数就会被push进cbs这个数组中,
  * 你可以向上追踪cbs会发现就是runQueue函数中第一行定义的那个postEnterCbs数组,这数组会在onComplete中执行,此时遍历postEnterCbs拿到cb然后调用
@@ -440,6 +442,7 @@ function bindEnterGuard (
           // the instance may not have been registered at this time.
           // we will need to poll for registration until current route
           // is no longer valid.
+          //执行 cb 回调
           poll(cb, match.instances, key, isValid)
         })
       }
@@ -468,7 +471,7 @@ function poll (
     //instances[key]为当前vue组件实例 就是官方文档中的例子 'next(vm => { 通过 `vm` 访问组件实例}' 的vm 
     cb(instances[key])
   } else if (isValid()) {
-    //这里使用轮序器的原因是路由组件有可能被套在transition 組件下,此时在一些缓动模式下不一定能拿到实例，
+    //这里使用轮询器的原因是路由组件有可能被套在transition 組件下,此时在一些缓动模式下不一定能拿到实例，
     //所以用一个轮询方法不断去判断，直到能获取到组件实例，再去调用 cb
     setTimeout(() => {
       poll(cb, instances, key, isValid)

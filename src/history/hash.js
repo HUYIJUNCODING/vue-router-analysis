@@ -98,7 +98,7 @@ export class HashHistory extends History {
   }
 
   /**
-   * 确定url(也就是将url地址变更成最新的)
+   * 锁定url(也就是将url地址变更成最新的)
    * @param {*} push 
    */
   ensureURL (push?: boolean) {
