@@ -59,8 +59,9 @@ export default {
         return h()
       }
     }
-    //这里depth用处的地方,会发现,depth的值会作为matched数组的索引来获取对应的route
+    //这里depth用处的地方,会发现,depth的值会作为matched数组的索引从matched中获取对应的routeRecord
     const matched = route.matched[depth]
+    //最终将路由组件拿出来，后面调用createElement渲染
     const component = matched && matched.components[name]
     // render empty node if no matched route or no config component
     if (!matched || !component) {
@@ -112,7 +113,7 @@ export default {
       fillPropsinData(component, data, route, configProps)
     }
 
-    //调用 createElement函数 根据component 渲染出 当前组件的vonde(真正执行页面的地方)
+    //调用 createElement函数 根据component 渲染出 当前组件的vnode
     return h(component, data, children)
   }
 }

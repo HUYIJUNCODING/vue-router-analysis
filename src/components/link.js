@@ -13,7 +13,7 @@ const noop = () => {}
 
 export default {
   name: 'RouterLink',
-  //可以在<router-link>标签上出入的props属性,to为必填项,其余为可选
+  //props属性,to为必填项,其余为可选
   props: {
     //to
     to: {
