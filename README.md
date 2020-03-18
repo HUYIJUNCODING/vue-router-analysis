@@ -1,6 +1,4 @@
-# vue-router 源码解析
-
-## 前言
+### 前言
 如果你在使用 Vue，相信一定会用到 vue-router 这个官方路由管理器，作为 Vue 家族中不可或缺的秀，很有必要来了解下其源码实现，话不多说，走起，去解开它神秘的面纱吧！
 
 ### 源码目录
@@ -1157,7 +1155,7 @@ class VueRouter {
   }
 }
 ```
-### match 
+#### match 
 
 ```js
 <!--src/create-matcher.js-->
@@ -1227,7 +1225,7 @@ class VueRouter {
 matcher 路由匹配器中的 match 函数首先根据传入的目标 location 和当前 current 调用 normalizeLocation 方法计算生成一个规范后的新 location，然后对 name 判断如果 name 存在,根据 name 从 nameMap[name] 找到对应的 routeRecord,最终调用 createRoute 方法创建一个新的 route 对象(这个route对象就是最终的route)，如果 name 属性不存在,则判断 path，然后遍历 pathList 每次拿到 path 和从 pathMap[path]获取到 record 调用 matchRoute 去匹配 routeRouteRecord，如果匹配到了也最终调用 createRoute 方法创建一个新的 route 对象
 > 这里小伙伴可能会有个疑问，为啥 path 不能像 name 一样直接去 pathMap 中匹配呢，而是先遍历 pathList 获取到 path 然后拿到 pathMap[path] 再调用 matchRoute 利用 record.regex 去匹配 routeRouteRecord呢？原因是我们传入的 locatiion.path 是真实的路径，而 pathMap 中定义的 path 是包含参数标识符的，因此直接去匹配有可能匹配不到。
 
-### createRoute
+#### createRoute
 
 ```js
 <!--src/create-matcher.js-->
@@ -1806,7 +1804,7 @@ export function resolveAsyncComponents (matched: Array<RouteRecord>): Function {
     }
 ```
 
-### runQueue
+#### runQueue
 
 ```js
 <!--src/history/base.js-->
@@ -2680,7 +2678,4 @@ function findAnchor (children) {
 
 ### 结语
 到此，本文对 vue-router 源码的解析就全部结束了，初衷是结合自己在过程中的分析方法和思路，然后通过写这篇文章形成一条逻辑主线分享给大家，因此在叙述的过程中没有特别详细和具体的表述。细节的话，建议大家去看我源代码中的注释，个人认为还是比较详细的，都是我在分析过程中留下的分析笔记。同时由于本文篇幅较长，因此可能会存在许多表达上的不通顺或者不准确地方，还望路过的各位小伙伴及时指正，蟹蟹啦！
-
-
-
 
